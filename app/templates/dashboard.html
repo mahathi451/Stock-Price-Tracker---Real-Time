@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Tracker</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Real-Time Stock Tracker</h1>
+    
+    <div id="priceDisplay">
+        {% for symbol, data in prices.items() %}
+            <div class="stock-card">
+                <h2>{{ symbol }}</h2>
+                <p>Current: ${{ data.current|round(2) }}</p>
+                <p>24h High: ${{ data.high|round(2) }}</p>
+                <p>24h Low: ${{ data.low|round(2) }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="chartContainer"></div>
+
+    <h2>Set Alert</h2>
+    <form action="/set_alert" method="POST">
+        <select name="symbol">
+            {% for symbol in symbols %}
+                <option value="{{ symbol }}">{{ symbol }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" step="0.01" name="value" placeholder="Threshold">
+        <select name="alert_type">
+            <option value="above">Price Above</option>
+            <option value="below">Price Below</option>
+        </select>
+        <button type="submit">Set Alert</button>
+    </form>
+
+    <script>
+        const chartData = {
+            x: {{ timestamps|safe }},
+            y: {{ prices_list|safe }},
+            type: 'scatter'
+        };
+        Plotly.newPlot('chartContainer', [chartData]);
+    </script>
+</body>
+</html>
